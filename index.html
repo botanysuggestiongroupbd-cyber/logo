@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ব্যাচ ইমেজ ওয়াটারমার্ক</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .upload-section {
+            border: 3px dashed #a0a0a0;
+            padding: 30px 15px;
+            text-align: center;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .upload-section.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        /* Improved file input styling */
+        .file-input-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .file-input-real {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .file-input-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .file-input-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .watermark-type {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .type-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .type-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .control-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .control-input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        
+        .color-size-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .color-input {
+            flex: 1;
+            height: 50px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        
+        .size-input {
+            flex: 2;
+        }
+        
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #e0e0e0;
+            border-radius: 5px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:disabled {
+            background: #a0a0a0;
+            cursor: not-allowed;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        .preview-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .preview-item {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .preview-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .preview-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .preview-name {
+            font-size: 0.8rem;
+            color: #666;
+            word-break: break-word;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .watermark-preview {
+            width: 100px;
+            height: 50px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 10px auto;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .selected-files {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .file-list {
+            list-style: none;
+        }
+        
+        .file-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-remove {
+            color: #ff4757;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+        
+        .modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .modal-prev {
+            left: 20px;
+        }
+        
+        .modal-next {
+            right: 20px;
+        }
+        
+        .modal-info {
+            color: white;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 1.1rem;
+        }
+        
+        /* Checkbox Styles */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        
+        .custom-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .custom-checkbox.checked {
+            background: #667eea;
+        }
+        
+        .custom-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Font Selector */
+        .font-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .font-preview {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 16px;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .preview-section {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
+            
+            .preview-img {
+                height: 100px;
+            }
+            
+            .color-size-group {
+                flex-direction: column;
+            }
+            
+            .color-input {
+                width: 100%;
+            }
+            
+            .file-input-button {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            
+            .modal-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .modal-prev {
+                left: 10px;
+            }
+            
+            .modal-next {
+                right: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .preview-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .watermark-type {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .font-selector {
+                flex-direction: column;
+            }
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .mobile-instruction {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+        
+        .instruction-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📷 ব্যাচ ইমেজ ওয়াটারমার্ক</h1>
+            <p class="subtitle">একসাথে ৭০-৮০টি ছবিতে ওয়াটারমার্ক যুক্ত করুন</p>
+        </header>
+        
+        <!-- Upload Section -->
+        <div class="card">
+            <div class="upload-section" id="uploadArea">
+                <div class="upload-icon">📁</div>
+                <h3>ছবি আপলোড করুন</h3>
+                <p>একসাথে ৭০-৮০টি ছবি সিলেক্ট করুন</p>
+                
+                <!-- Improved file input -->
+                <div class="file-input-container">
+                    <button class="file-input-button" id="fileInputButton">
+                        📸 ছবি সিলেক্ট করুন
+                    </button>
+                    <input type="file" id="imageInput" class="file-input-real" multiple accept="image/*">
+                </div>
+                
+                <div class="file-info" id="fileInfo">
+                    কোন ফাইল সিলেক্ট করা হয়নি
+                </div>
+                
+                <div class="mobile-instruction">
+                    <div class="instruction-title">📱 মোবাইলে একবারে অনেকগুলো ছবি সিলেক্ট করার নিয়ম:</div>
+                    <div>১. উপরের বাটনে ট্যাপ করুন</div>
+                    <div>২. গ্যালারি ওপেন হবে</div>
+                    <div>৩. একের পর এক ছবি ট্যাপ করে সিলেক্ট করুন</div>
+                    <div>৪. "Done" বা "Open" এ ট্যাপ করুন</div>
+                </div>
+            </div>
+
+            <!-- Selected files list -->
+            <div class="selected-files hidden" id="selectedFiles">
+                <h4>সিলেক্টেড ছবি:</h4>
+                <ul class="file-list" id="fileList"></ul>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats hidden" id="statsSection">
+            <div class="stat-item">
+                <div class="stat-value" id="totalCount">0</div>
+                <div>মোট ছবি</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="processedCount">0</div>
+                <div>প্রসেসড</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="remainingCount">0</div>
+                <div>বাকি</div>
+            </div>
+        </div>
+
+        <!-- Watermark Controls -->
+        <div class="card">
+            <h3>ওয়াটারমার্ক সেটিংস</h3>
+            
+            <!-- Watermark Type Selection -->
+            <div class="watermark-type">
+                <div class="type-btn active" data-type="text">📝 টেক্সট</div>
+                <div class="type-btn" data-type="image">🖼️ ছবি</div>
+                <div class="type-btn" data-type="both">🔤+🖼️ উভয়</div>
+            </div>
+            
+            <!-- Text Watermark Controls -->
+            <div id="textControls">
+                <div class="control-group">
+                    <label class="control-label">ওয়াটারমার্ক টেক্সট</label>
+                    <input type="text" id="watermarkText" class="control-input" value="Your Watermark" placeholder="আপনার ওয়াটারমার্ক টেক্সট লিখুন">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">ফন্ট সেটিংস</label>
+                    <div class="font-selector">
+                        <select id="fontFamily" class="control-input">
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                            <option value="Trebuchet MS">Trebuchet MS</option>
+                            <option value="Palatino">Palatino</option>
+                        </select>
+                        <div class="font-preview" id="fontPreview" style="font-family: Arial;">
+                            ফন্ট প্রিভিউ
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">টেক্সট স্টাইল</label>
+                    <div class="color-size-group">
+                        <input type="color" id="textColor" class="color-input" value="#ffffff">
+                        <input type="number" id="textSize" class="control-input size-input" value="24" min="10" max="100" placeholder="ফন্ট সাইজ">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Image Watermark Controls -->
+            <div id="imageControls" class="hidden">
+                <div class="control-group">
+                    <label class="control-label">ওয়াটারমার্ক ছবি</label>
+                    <input type="file" id="watermarkImage" class="control-input" accept="image/*">
+                    <img id="watermarkPreview" class="watermark-preview hidden" alt="Watermark Preview">
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">ছবির সাইজ (%)</label>
+                    <input type="range" id="imageSize" class="slider" min="5" max="50" value="20">
+                    <span id="imageSizeValue">20%</span>
+                </div>
+            </div>
+            
+            <!-- Both Watermark Controls -->
+            <div id="bothControls" class="hidden">
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <div class="custom-checkbox checked" id="textCheckbox"></div>
+                        টেক্সট ওয়াটারমার্ক
+                    </label>
+                    <label class="checkbox-label">
+                        <div class="custom-checkbox checked" id="imageCheckbox"></div>
+                        ইমেজ ওয়াটারমার্ক
+                    </label>
+                </div>
+                
+                <div id="bothTextControls">
+                    <div class="control-group">
+                        <label class="control-label">ওয়াটারমার্ক টেক্সট</label>
+                        <input type="text" id="bothWatermarkText" class="control-input" value="Your Watermark" placeholder="আপনার ওয়াটারমার্ক টেক্সট লিখুন">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">ফন্ট সেটিংস</label>
+                        <div class="font-selector">
+                            <select id="bothFontFamily" class="control-input">
+                                <option value="Arial">Arial</option>
+                                <option value="Helvetica">Helvetica</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Georgia">Georgia</option>
+                                <option value="Verdana">Verdana</option>
+                                <option value="Courier New">Courier New</option>
+                                <option value="Impact">Impact</option>
+                                <option value="Comic Sans MS">Comic Sans MS</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                                <option value="Palatino">Palatino</option>
+                            </select>
+                            <div class="font-preview" id="bothFontPreview" style="font-family: Arial;">
+                                ফন্ট প্রিভিউ
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">টেক্সট স্টাইল</label>
+                        <div class="color-size-group">
+                            <input type="color" id="bothTextColor" class="color-input" value="#ffffff">
+                            <input type="number" id="bothTextSize" class="control-input size-input" value="24" min="10" max="100" placeholder="ফন্ট সাইজ">
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="bothImageControls">
+                    <div class="control-group">
+                        <label class="control-label">ওয়াটারমার্ক ছবি</label>
+                        <input type="file" id="bothWatermarkImage" class="control-input" accept="image/*">
+                        <img id="bothWatermarkPreview" class="watermark-preview hidden" alt="Watermark Preview">
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">ছবির সাইজ (%)</label>
+                        <input type="range" id="bothImageSize" class="slider" min="5" max="50" value="20">
+                        <span id="bothImageSizeValue">20%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Common Controls -->
+            <div class="control-group">
+                <label class="control-label">অপাসিটি</label>
+                <div class="slider-group">
+                    <input type="range" id="opacity" class="slider" min="0.1" max="1" step="0.1" value="0.7">
+                    <span id="opacityValue">70%</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label">পজিশন</label>
+                <select id="position" class="control-input">
+                    <option value="bottom-right">নিচের ডান</option>
+                    <option value="bottom-left">নিচের বাম</option>
+                    <option value="top-right">উপরের ডান</option>
+                    <option value="top-left">উপরের বাম</option>
+                    <option value="center">মাঝখানে</option>
+                    <option value="tile">সমস্ত জায়গায়</option>
+                </select>
+            </div>
+            
+            <button id="processBtn" class="btn btn-primary" disabled>ওয়াটারমার্ক অ্যাড করুন</button>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="card">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% সম্পূর্ণ</div>
+            </div>
+            
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>ছবি প্রসেস করা হচ্ছে...</p>
+            </div>
+            
+            <button id="downloadAllBtn" class="btn btn-success hidden">সব ছবি ডাউনলোড করুন</button>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="card">
+            <h3>প্রিভিউ</h3>
+            <div class="preview-section" id="previewSection">
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    ছবি আপলোড করলে প্রিভিউ এখানে দেখানো হবে
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Large Preview -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <button class="modal-nav modal-prev" id="modalPrev">❮</button>
+            <img class="modal-img" id="modalImg" src="" alt="Large Preview">
+            <button class="modal-nav modal-next" id="modalNext">❯</button>
+            <div class="modal-info" id="modalInfo"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const imageInput = document.getElementById('imageInput');
+        const fileInputButton = document.getElementById('fileInputButton');
+        const fileInfo = document.getElementById('fileInfo');
+        const uploadArea = document.getElementById('uploadArea');
+        const selectedFiles = document.getElementById('selectedFiles');
+        const fileList = document.getElementById('fileList');
+        const watermarkText = document.getElementById('watermarkText');
+        const textColor = document.getElementById('textColor');
+        const textSize = document.getElementById('textSize');
+        const opacity = document.getElementById('opacity');
+        const opacityValue = document.getElementById('opacityValue');
+        const position = document.getElementById('position');
+        const processBtn = document.getElementById('processBtn');
+        const progress = document.getElementById('progress');
+        const progressText = document.getElementById('progressText');
+        const previewSection = document.getElementById('previewSection');
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const statsSection = document.getElementById('statsSection');
+        const totalCount = document.getElementById('totalCount');
+        const processedCount = document.getElementById('processedCount');
+        const remainingCount = document.getElementById('remainingCount');
+
+        // Watermark type elements
+        const typeButtons = document.querySelectorAll('.type-btn');
+        const textControls = document.getElementById('textControls');
+        const imageControls = document.getElementById('imageControls');
+        const bothControls = document.getElementById('bothControls');
+        const watermarkImage = document.getElementById('watermarkImage');
+        const watermarkPreview = document.getElementById('watermarkPreview');
+        const imageSize = document.getElementById('imageSize');
+        const imageSizeValue = document.getElementById('imageSizeValue');
+
+        // Font elements
+        const fontFamily = document.getElementById('fontFamily');
+        const fontPreview = document.getElementById('fontPreview');
+        const bothFontFamily = document.getElementById('bothFontFamily');
+        const bothFontPreview = document.getElementById('bothFontPreview');
+
+        // Both watermark elements
+        const textCheckbox = document.getElementById('textCheckbox');
+        const imageCheckbox = document.getElementById('imageCheckbox');
+        const bothTextControls = document.getElementById('bothTextControls');
+        const bothImageControls = document.getElementById('bothImageControls');
+        const bothWatermarkText = document.getElementById('bothWatermarkText');
+        const bothTextColor = document.getElementById('bothTextColor');
+        const bothTextSize = document.getElementById('bothTextSize');
+        const bothWatermarkImage = document.getElementById('bothWatermarkImage');
+        const bothWatermarkPreview = document.getElementById('bothWatermarkPreview');
+        const bothImageSize = document.getElementById('bothImageSize');
+        const bothImageSizeValue = document.getElementById('bothImageSizeValue');
+
+        // Modal elements
+        const previewModal = document.getElementById('previewModal');
+        const modalClose = document.getElementById('modalClose');
+        const modalImg = document.getElementById('modalImg');
+        const modalPrev = document.getElementById('modalPrev');
+        const modalNext = document.getElementById('modalNext');
+        const modalInfo = document.getElementById('modalInfo');
+
+        // Global variables
+        let originalImages = [];
+        let watermarkedImages = [];
+        let currentWatermarkType = 'text';
+        let watermarkImageData = null;
+        let bothWatermarkImageData = null;
+        let currentPreviewIndex = 0;
+
+        // Event Listeners
+        imageInput.addEventListener('change', handleImageUpload);
+        fileInputButton.addEventListener('click', () => {
+            imageInput.click(); // Trigger file input when button is clicked
+        });
+        opacity.addEventListener('input', updateOpacityValue);
+        imageSize.addEventListener('input', updateImageSizeValue);
+        bothImageSize.addEventListener('input', updateBothImageSizeValue);
+        processBtn.addEventListener('click', processAllImages);
+        downloadAllBtn.addEventListener('click', downloadAllImages);
+        watermarkImage.addEventListener('change', handleWatermarkImageUpload);
+        bothWatermarkImage.addEventListener('change', handleBothWatermarkImageUpload);
+        fontFamily.addEventListener('change', updateFontPreview);
+        bothFontFamily.addEventListener('change', updateBothFontPreview);
+
+        // Modal event listeners
+        modalClose.addEventListener('click', closeModal);
+        modalPrev.addEventListener('click', showPrevImage);
+        modalNext.addEventListener('click', showNextImage);
+        previewModal.addEventListener('click', (e) => {
+            if (e.target === previewModal) closeModal();
+        });
+
+        // Checkbox event listeners
+        textCheckbox.addEventListener('click', toggleTextWatermark);
+        imageCheckbox.addEventListener('click', toggleImageWatermark);
+
+        // Make entire upload area clickable as fallback
+        uploadArea.addEventListener('click', (e) => {
+            if (e.target.classList.contains('file-input-real') || 
+                e.target.classList.contains('file-input-button')) return;
+            imageInput.click();
+        });
+
+        // Watermark type switching
+        typeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                typeButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentWatermarkType = btn.dataset.type;
+                
+                textControls.classList.add('hidden');
+                imageControls.classList.add('hidden');
+                bothControls.classList.add('hidden');
+                
+                if (currentWatermarkType === 'text') {
+                    textControls.classList.remove('hidden');
+                } else if (currentWatermarkType === 'image') {
+                    imageControls.classList.remove('hidden');
+                } else if (currentWatermarkType === 'both') {
+                    bothControls.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            imageInput.files = e.dataTransfer.files;
+            handleImageUpload({ target: imageInput });
+        });
+
+        function updateOpacityValue() {
+            opacityValue.textContent = Math.round(opacity.value * 100) + '%';
+        }
+
+        function updateImageSizeValue() {
+            imageSizeValue.textContent = imageSize.value + '%';
+        }
+
+        function updateBothImageSizeValue() {
+            bothImageSizeValue.textContent = bothImageSize.value + '%';
+        }
+
+        function updateFontPreview() {
+            fontPreview.style.fontFamily = fontFamily.value;
+            fontPreview.textContent = `${fontFamily.value} - ফন্ট প্রিভিউ`;
+        }
+
+        function updateBothFontPreview() {
+            bothFontPreview.style.fontFamily = bothFontFamily.value;
+            bothFontPreview.textContent = `${bothFontFamily.value} - ফন্ট প্রিভিউ`;
+        }
+
+        function toggleTextWatermark() {
+            textCheckbox.classList.toggle('checked');
+            bothTextControls.classList.toggle('hidden', !textCheckbox.classList.contains('checked'));
+        }
+
+        function toggleImageWatermark() {
+            imageCheckbox.classList.toggle('checked');
+            bothImageControls.classList.toggle('hidden', !imageCheckbox.classList.contains('checked'));
+        }
+
+        function handleWatermarkImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                watermarkImageData = e.target.result;
+                watermarkPreview.src = watermarkImageData;
+                watermarkPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleBothWatermarkImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                bothWatermarkImageData = e.target.result;
+                bothWatermarkPreview.src = bothWatermarkImageData;
+                bothWatermarkPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            originalImages = [];
+            watermarkedImages = [];
+            previewSection.innerHTML = '';
+            statsSection.classList.remove('hidden');
+            selectedFiles.classList.remove('hidden');
+            fileList.innerHTML = '';
+
+            // Update file info
+            fileInfo.textContent = `${files.length}টি ছবি সিলেক্ট করা হয়েছে`;
+            fileInputButton.textContent = `📸 ${files.length}টি ছবি সিলেক্টেড`;
+
+            // Process each file
+            Array.from(files).forEach((file, index) => {
+                if (!file.type.startsWith('image/')) return;
+
+                // Add to file list
+                const fileItem = document.createElement('li');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <span>${file.name}</span>
+                    <span class="file-remove" data-index="${index}">✕</span>
+                `;
+                fileList.appendChild(fileItem);
+
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const imgData = {
+                        id: index,
+                        name: file.name,
+                        originalUrl: e.target.result,
+                        file: file
+                    };
+                    
+                    originalImages.push(imgData);
+                    
+                    // Create preview
+                    createPreview(imgData, 'original');
+                    
+                    // Update stats
+                    updateStats();
+                    
+                    // Enable process button when at least one image is loaded
+                    if (originalImages.length > 0) {
+                        processBtn.disabled = false;
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            });
+
+            // Add event listeners for remove buttons
+            document.querySelectorAll('.file-remove').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    removeImage(index);
+                });
+            });
+        }
+
+        function removeImage(index) {
+            // Remove from arrays
+            originalImages = originalImages.filter(img => img.id !== index);
+            watermarkedImages = watermarkedImages.filter(img => img.id !== index);
+            
+            // Remove from file list
+            document.querySelectorAll('.file-item').forEach(item => {
+                if (parseInt(item.querySelector('.file-remove').dataset.index) === index) {
+                    item.remove();
+                }
+            });
+            
+            // Remove previews
+            document.getElementById(`preview-original-${index}`)?.remove();
+            document.getElementById(`preview-watermarked-${index}`)?.remove();
+            
+            // Update stats and process button
+            updateStats();
+            processBtn.disabled = originalImages.length === 0;
+            
+            // Update file info
+            if (originalImages.length === 0) {
+                fileInfo.textContent = 'কোন ফাইল সিলেক্ট করা হয়নি';
+                fileInputButton.textContent = '📸 ছবি সিলেক্ট করুন';
+                selectedFiles.classList.add('hidden');
+                statsSection.classList.add('hidden');
+            } else {
+                fileInfo.textContent = `${originalImages.length}টি ছবি সিলেক্ট করা হয়েছে`;
+                fileInputButton.textContent = `📸 ${originalImages.length}টি ছবি সিলেক্টেড`;
+            }
+        }
+
+        function updateStats() {
+            totalCount.textContent = originalImages.length;
+            processedCount.textContent = watermarkedImages.length;
+            remainingCount.textContent = originalImages.length - watermarkedImages.length;
+        }
+
+        function createPreview(imgData, type) {
+            let previewItem = document.getElementById(`preview-${type}-${imgData.id}`);
+            
+            if (!previewItem) {
+                previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.id = `preview-${type}-${imgData.id}`;
+                previewItem.addEventListener('click', () => openModal(imgData.id, type));
+                previewSection.appendChild(previewItem);
+            }
+
+            previewItem.innerHTML = `
+                <img class="preview-img" src="${type === 'watermarked' ? imgData.watermarkedUrl : imgData.originalUrl}" alt="${imgData.name}">
+                <div class="preview-name">${imgData.name}</div>
+            `;
+        }
+
+        function openModal(index, type) {
+            const images = type === 'watermarked' ? watermarkedImages : originalImages;
+            const imgData = images.find(img => img.id === index);
+            if (!imgData) return;
+
+            currentPreviewIndex = images.findIndex(img => img.id === index);
+            modalImg.src = type === 'watermarked' ? imgData.watermarkedUrl : imgData.originalUrl;
+            modalInfo.textContent = `${imgData.name} (${currentPreviewIndex + 1}/${images.length})`;
+            previewModal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            previewModal.style.display = 'none';
+        }
+
+        function showPrevImage() {
+            if (watermarkedImages.length === 0) return;
+            currentPreviewIndex = (currentPreviewIndex - 1 + watermarkedImages.length) % watermarkedImages.length;
+            const imgData = watermarkedImages[currentPreviewIndex];
+            modalImg.src = imgData.watermarkedUrl;
+            modalInfo.textContent = `${imgData.name} (${currentPreviewIndex + 1}/${watermarkedImages.length})`;
+        }
+
+        function showNextImage() {
+            if (watermarkedImages.length === 0) return;
+            currentPreviewIndex = (currentPreviewIndex + 1) % watermarkedImages.length;
+            const imgData = watermarkedImages[currentPreviewIndex];
+            modalImg.src = imgData.watermarkedUrl;
+            modalInfo.textContent = `${imgData.name} (${currentPreviewIndex + 1}/${watermarkedImages.length})`;
+        }
+
+        function processAllImages() {
+            if (originalImages.length === 0) return;
+
+            // Validate watermarks
+            if (currentWatermarkType === 'image' && !watermarkImageData) {
+                alert('দয়া করে একটি ওয়াটারমার্ক ছবি সিলেক্ট করুন');
+                return;
+            }
+
+            if (currentWatermarkType === 'both') {
+                if (!textCheckbox.classList.contains('checked') && !imageCheckbox.classList.contains('checked')) {
+                    alert('দয়া করে টেক্সট বা ইমেজ ওয়াটারমার্ক সিলেক্ট করুন');
+                    return;
+                }
+                if (textCheckbox.classList.contains('checked') && !bothWatermarkText.value.trim()) {
+                    alert('দয়া করে ওয়াটারমার্ক টেক্সট লিখুন');
+                    return;
+                }
+                if (imageCheckbox.classList.contains('checked') && !bothWatermarkImageData) {
+                    alert('দয়া করে একটি ওয়াটারমার্ক ছবি সিলেক্ট করুন');
+                    return;
+                }
+            }
+
+            watermarkedImages = [];
+            processBtn.disabled = true;
+            downloadAllBtn.classList.add('hidden');
+            loadingSpinner.style.display = 'block';
+            progress.style.width = '0%';
+            progressText.textContent = '0% সম্পূর্ণ';
+
+            let processed = 0;
+            const total = originalImages.length;
+
+            // Process images in batches to avoid blocking UI
+            const processBatch = () => {
+                const batchSize = 5; // Process 5 images at a time
+                const batch = originalImages.slice(processed, processed + batchSize);
+                
+                if (batch.length === 0) {
+                    // All images processed
+                    loadingSpinner.style.display = 'none';
+                    processBtn.disabled = false;
+                    downloadAllBtn.classList.remove('hidden');
+                    return;
+                }
+
+                let batchProcessed = 0;
+                
+                batch.forEach((imgData, index) => {
+                    setTimeout(() => {
+                        processSingleImage(imgData).then(() => {
+                            batchProcessed++;
+                            processed++;
+                            
+                            // Update progress
+                            const progressPercent = (processed / total) * 100;
+                            progress.style.width = progressPercent + '%';
+                            progressText.textContent = `${Math.round(progressPercent)}% সম্পূর্ণ`;
+                            updateStats();
+                            
+                            if (batchProcessed === batch.length) {
+                                // Process next batch after a short delay
+                                setTimeout(processBatch, 100);
+                            }
+                        });
+                    }, index * 200); // Stagger processing
+                });
+            };
+
+            processBatch();
+        }
+
+        function processSingleImage(imgData) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    // Set canvas size to image size
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Draw original image
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Apply watermark based on type
+                    if (currentWatermarkType === 'text') {
+                        applyTextWatermark(ctx, canvas.width, canvas.height);
+                    } else if (currentWatermarkType === 'image') {
+                        applyImageWatermark(ctx, canvas.width, canvas.height).then(() => {
+                            finishProcessing();
+                        }).catch(() => {
+                            finishProcessing();
+                        });
+                        return;
+                    } else if (currentWatermarkType === 'both') {
+                        applyBothWatermark(ctx, canvas.width, canvas.height).then(() => {
+                            finishProcessing();
+                        }).catch(() => {
+                            finishProcessing();
+                        });
+                        return;
+                    }
+                    
+                    finishProcessing();
+                    
+                    function finishProcessing() {
+                        // Get watermarked image data URL
+                        const watermarkedUrl = canvas.toDataURL('image/jpeg', 0.9);
+                        
+                        // Update image data
+                        const watermarkedData = {
+                            ...imgData,
+                            watermarkedUrl: watermarkedUrl
+                        };
+                        
+                        watermarkedImages.push(watermarkedData);
+                        
+                        // Update preview
+                        createPreview(watermarkedData, 'watermarked');
+                        resolve();
+                    }
+                };
+                
+                img.src = imgData.originalUrl;
+            });
+        }
+
+        function applyTextWatermark(ctx, width, height) {
+            const text = watermarkText.value;
+            const fontSize = parseInt(textSize.value);
+            const color = textColor.value;
+            const alpha = parseFloat(opacity.value);
+            const pos = position.value;
+            const font = fontFamily.value;
+            
+            // Set text properties
+            ctx.font = `bold ${fontSize}px ${font}`;
+            ctx.fillStyle = color;
+            ctx.globalAlpha = alpha;
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            
+            // Calculate position
+            let x, y;
+            const padding = 20;
+            
+            switch(pos) {
+                case 'bottom-right':
+                    x = width - padding;
+                    y = height - padding;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    break;
+                case 'bottom-left':
+                    x = padding;
+                    y = height - padding;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'bottom';
+                    break;
+                case 'top-right':
+                    x = width - padding;
+                    y = padding;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'top';
+                    break;
+                case 'top-left':
+                    x = padding;
+                    y = padding;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    break;
+                case 'center':
+                    x = width / 2;
+                    y = height / 2;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    break;
+                case 'tile':
+                    // Tile watermark across the image
+                    applyTiledWatermark(ctx, width, height, () => {
+                        ctx.fillText(text, 0, 0);
+                    }, fontSize * 2);
+                    return;
+            }
+            
+            // Add text shadow for better visibility
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 3;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            
+            // Draw watermark text
+            ctx.fillText(text, x, y);
+        }
+
+        function applyImageWatermark(ctx, width, height) {
+            return new Promise((resolve, reject) => {
+                if (!watermarkImageData) {
+                    reject('No watermark image');
+                    return;
+                }
+
+                const watermarkImg = new Image();
+                watermarkImg.onload = function() {
+                    const alpha = parseFloat(opacity.value);
+                    const pos = position.value;
+                    const sizePercent = parseInt(imageSize.value) / 100;
+                    
+                    // Calculate watermark size
+                    const watermarkWidth = watermarkImg.width * sizePercent;
+                    const watermarkHeight = watermarkImg.height * sizePercent;
+                    
+                    ctx.globalAlpha = alpha;
+                    
+                    if (pos === 'tile') {
+                        // Tile watermark across the image
+                        applyTiledWatermark(ctx, width, height, () => {
+                            ctx.drawImage(watermarkImg, 0, 0, watermarkWidth, watermarkHeight);
+                        }, watermarkWidth * 2);
+                    } else {
+                        // Single watermark
+                        let x, y;
+                        const padding = 20;
+                        
+                        switch(pos) {
+                            case 'bottom-right':
+                                x = width - watermarkWidth - padding;
+                                y = height - watermarkHeight - padding;
+                                break;
+                            case 'bottom-left':
+                                x = padding;
+                                y = height - watermarkHeight - padding;
+                                break;
+                            case 'top-right':
+                                x = width - watermarkWidth - padding;
+                                y = padding;
+                                break;
+                            case 'top-left':
+                                x = padding;
+                                y = padding;
+                                break;
+                            case 'center':
+                                x = (width - watermarkWidth) / 2;
+                                y = (height - watermarkHeight) / 2;
+                                break;
+                        }
+                        
+                        ctx.drawImage(watermarkImg, x, y, watermarkWidth, watermarkHeight);
+                    }
+                    resolve();
+                };
+                watermarkImg.onerror = reject;
+                watermarkImg.src = watermarkImageData;
+            });
+        }
+
+        function applyBothWatermark(ctx, width, height) {
+            return new Promise((resolve, reject) => {
+                const alpha = parseFloat(opacity.value);
+                const pos = position.value;
+                
+                // Apply image watermark first if selected
+                if (imageCheckbox.classList.contains('checked') && bothWatermarkImageData) {
+                    const watermarkImg = new Image();
+                    watermarkImg.onload = function() {
+                        const sizePercent = parseInt(bothImageSize.value) / 100;
+                        const watermarkWidth = watermarkImg.width * sizePercent;
+                        const watermarkHeight = watermarkImg.height * sizePercent;
+                        
+                        ctx.globalAlpha = alpha;
+                        
+                        let imageX, imageY;
+                        const padding = 20;
+                        
+                        switch(pos) {
+                            case 'bottom-right':
+                                imageX = width - watermarkWidth - padding;
+                                imageY = height - watermarkHeight - padding;
+                                break;
+                            case 'bottom-left':
+                                imageX = padding;
+                                imageY = height - watermarkHeight - padding;
+                                break;
+                            case 'top-right':
+                                imageX = width - watermarkWidth - padding;
+                                imageY = padding;
+                                break;
+                            case 'top-left':
+                                imageX = padding;
+                                imageY = padding;
+                                break;
+                            case 'center':
+                                imageX = (width - watermarkWidth) / 2;
+                                imageY = (height - watermarkHeight) / 2;
+                                break;
+                            case 'tile':
+                                applyTiledWatermark(ctx, width, height, () => {
+                                    ctx.drawImage(watermarkImg, 0, 0, watermarkWidth, watermarkHeight);
+                                }, watermarkWidth * 2);
+                                break;
+                        }
+                        
+                        if (pos !== 'tile') {
+                            ctx.drawImage(watermarkImg, imageX, imageY, watermarkWidth, watermarkHeight);
+                        }
+                        
+                        // After image is drawn, apply text watermark below the image
+                        if (textCheckbox.classList.contains('checked')) {
+                            applyBothTextWatermark(ctx, width, height, imageX, imageY, watermarkWidth, watermarkHeight);
+                        }
+                        resolve();
+                    };
+                    watermarkImg.onerror = reject;
+                    watermarkImg.src = bothWatermarkImageData;
+                } else if (textCheckbox.classList.contains('checked')) {
+                    // If only text is selected (no image)
+                    applyBothTextWatermark(ctx, width, height);
+                    resolve();
+                } else {
+                    resolve();
+                }
+            });
+        }
+
+        function applyBothTextWatermark(ctx, width, height, imageX = null, imageY = null, imageWidth = null, imageHeight = null) {
+            const text = bothWatermarkText.value;
+            const fontSize = parseInt(bothTextSize.value);
+            const color = bothTextColor.value;
+            const alpha = parseFloat(opacity.value);
+            const pos = position.value;
+            const font = bothFontFamily.value;
+            
+            // Set text properties
+            ctx.font = `bold ${fontSize}px ${font}`;
+            ctx.fillStyle = color;
+            ctx.globalAlpha = alpha;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            
+            // Add text shadow for better visibility
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+            ctx.shadowBlur = 3;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 2;
+            
+            let textX, textY;
+            const padding = 20;
+            const textSpacing = 10; // Space between image and text
+            
+            if (pos === 'tile') {
+                // For tile mode, apply text separately
+                applyTiledWatermark(ctx, width, height, () => {
+                    ctx.fillText(text, 0, 0);
+                }, fontSize * 2);
+                return;
+            }
+            
+            // Calculate text position based on image position
+            if (imageX !== null && imageY !== null && imageWidth !== null && imageHeight !== null) {
+                // If image exists, place text below the image
+                textX = imageX + (imageWidth / 2);
+                textY = imageY + imageHeight + textSpacing;
+            } else {
+                // If no image, use regular positioning but adjust for text-only
+                switch(pos) {
+                    case 'bottom-right':
+                        textX = width - padding;
+                        textY = height - padding - 30;
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'bottom';
+                        break;
+                    case 'bottom-left':
+                        textX = padding;
+                        textY = height - padding - 30;
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'bottom';
+                        break;
+                    case 'top-right':
+                        textX = width - padding;
+                        textY = padding + 30;
+                        ctx.textAlign = 'right';
+                        ctx.textBaseline = 'top';
+                        break;
+                    case 'top-left':
+                        textX = padding;
+                        textY = padding + 30;
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'top';
+                        break;
+                    case 'center':
+                        textX = width / 2;
+                        textY = height / 2 + 30;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        break;
+                }
+            }
+            
+            // Draw watermark text
+            ctx.fillText(text, textX, textY);
+        }
+
+        function applyTiledWatermark(ctx, width, height, drawFunction, spacing) {
+            for (let x = 0; x < width; x += spacing) {
+                for (let y = 0; y < height; y += spacing) {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    drawFunction();
+                    ctx.restore();
+                }
+            }
+        }
+
+        function downloadAllImages() {
+            if (watermarkedImages.length === 0) return;
+            
+            // Show download confirmation
+            if (confirm(`আপনি ${watermarkedImages.length}টি ছবি ডাউনলোড করতে চলেছেন। চালিয়ে যেতে চান?`)) {
+                watermarkedImages.forEach((imgData, index) => {
+                    setTimeout(() => {
+                        downloadSingleImage(imgData);
+                    }, index * 300); // Stagger downloads
+                });
+            }
+        }
+
+        function downloadSingleImage(imgData) {
+            const link = document.createElement('a');
+            link.download = `watermarked_${imgData.name}`;
+            link.href = imgData.watermarkedUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize
+        updateOpacityValue();
+        updateImageSizeValue();
+        updateBothImageSizeValue();
+        updateFontPreview();
+        updateBothFontPreview();
+    </script>
+</body>
+</html>
