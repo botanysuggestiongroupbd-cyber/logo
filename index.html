@@ -659,7 +659,7 @@
     <div class="container">
         <header>
             <h1>📷 Batch Image Watermark Tool</h1>
-            <p class="subtitle">Add watermarks to 70-80 images at once</p>
+            <p class="subtitle">Add watermarks to multiple images at once</p>
         </header>
         
         <!-- Features Section -->
@@ -695,7 +695,7 @@
             <div class="upload-section" id="uploadArea">
                 <div class="upload-icon">📁</div>
                 <h3>Upload Your Images</h3>
-                <p>Select up to 70-80 images at once</p>
+                <p>Select multiple images at once</p>
                 
                 <!-- Improved file input -->
                 <div class="file-input-container">
@@ -1010,7 +1010,7 @@
         // Event Listeners
         imageInput.addEventListener('change', handleImageUpload);
         fileInputButton.addEventListener('click', () => {
-            imageInput.click(); // Trigger file input when button is clicked
+            imageInput.click();
         });
         opacity.addEventListener('input', updateOpacityValue);
         imageSize.addEventListener('input', updateImageSizeValue);
@@ -1154,54 +1154,96 @@
             fileInfo.textContent = `${files.length} images selected`;
             fileInputButton.textContent = `📸 ${files.length} Images Selected`;
 
-            // Process each file
-            Array.from(files).forEach((file, index) => {
-                if (!file.type.startsWith('image/')) return;
+            // Convert FileList to Array and store with original index
+            const filesArray = Array.from(files).map((file, index) => ({ file, index }));
+            
+            // Filter only image files
+            const imageFiles = filesArray.filter(item => item.file.type.startsWith('image/'));
+            
+            // Sort files by name to maintain order
+            imageFiles.sort((a, b) => {
+                return a.file.name.localeCompare(b.file.name, undefined, { numeric: true, sensitivity: 'base' });
+            });
 
-                // Add to file list
+            // Process each file in order
+            let loadedCount = 0;
+            const totalImages = imageFiles.length;
+
+            // First create all file list items in correct order
+            imageFiles.forEach((item, sortedIndex) => {
+                const { file, originalIndex } = item;
+                
+                // Add to file list immediately (maintains order)
                 const fileItem = document.createElement('li');
                 fileItem.className = 'file-item';
                 fileItem.innerHTML = `
                     <span>${file.name}</span>
-                    <span class="file-remove" data-index="${index}">✕</span>
+                    <span class="file-remove" data-index="${originalIndex}">✕</span>
                 `;
                 fileList.appendChild(fileItem);
+            });
+
+            // Then load images one by one to maintain order
+            function loadNextImage(index) {
+                if (index >= imageFiles.length) {
+                    // All images loaded
+                    updateStats();
+                    if (originalImages.length > 0) {
+                        processBtn.disabled = false;
+                    }
+                    
+                    // Add event listeners for remove buttons
+                    document.querySelectorAll('.file-remove').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const index = parseInt(btn.dataset.index);
+                            removeImage(index);
+                        });
+                    });
+                    return;
+                }
+
+                const item = imageFiles[index];
+                const { file, originalIndex } = item;
+                const sortedIndex = index;
 
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
                     const imgData = {
-                        id: index,
+                        id: originalIndex,
+                        sortedId: sortedIndex,
                         name: file.name,
                         originalUrl: e.target.result,
                         file: file
                     };
                     
+                    // Add to array in correct order
                     originalImages.push(imgData);
+                    
+                    // Sort images by sortedId to maintain order
+                    originalImages.sort((a, b) => a.sortedId - b.sortedId);
                     
                     // Create preview
                     createPreview(imgData, 'original');
                     
-                    // Update stats
+                    loadedCount++;
                     updateStats();
                     
-                    // Enable process button when at least one image is loaded
-                    if (originalImages.length > 0) {
-                        processBtn.disabled = false;
-                    }
+                    // Load next image
+                    loadNextImage(index + 1);
+                };
+                
+                reader.onerror = function() {
+                    // If error, still continue with next image
+                    loadNextImage(index + 1);
                 };
                 
                 reader.readAsDataURL(file);
-            });
+            }
 
-            // Add event listeners for remove buttons
-            document.querySelectorAll('.file-remove').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(btn.dataset.index);
-                    removeImage(index);
-                });
-            });
+            // Start loading images
+            loadNextImage(0);
         }
 
         function removeImage(index) {
@@ -1325,12 +1367,9 @@
             let processed = 0;
             const total = originalImages.length;
 
-            // Process images in batches to avoid blocking UI
-            const processBatch = () => {
-                const batchSize = 5; // Process 5 images at a time
-                const batch = originalImages.slice(processed, processed + batchSize);
-                
-                if (batch.length === 0) {
+            // Process images in correct order
+            function processNextImage(index) {
+                if (index >= originalImages.length) {
                     // All images processed
                     loadingSpinner.style.display = 'none';
                     processBtn.disabled = false;
@@ -1338,30 +1377,24 @@
                     return;
                 }
 
-                let batchProcessed = 0;
+                const imgData = originalImages[index];
                 
-                batch.forEach((imgData, index) => {
-                    setTimeout(() => {
-                        processSingleImage(imgData).then(() => {
-                            batchProcessed++;
-                            processed++;
-                            
-                            // Update progress
-                            const progressPercent = (processed / total) * 100;
-                            progress.style.width = progressPercent + '%';
-                            progressText.textContent = `${Math.round(progressPercent)}% Complete`;
-                            updateStats();
-                            
-                            if (batchProcessed === batch.length) {
-                                // Process next batch after a short delay
-                                setTimeout(processBatch, 100);
-                            }
-                        });
-                    }, index * 200); // Stagger processing
+                processSingleImage(imgData).then(() => {
+                    processed++;
+                    
+                    // Update progress
+                    const progressPercent = (processed / total) * 100;
+                    progress.style.width = progressPercent + '%';
+                    progressText.textContent = `${Math.round(progressPercent)}% Complete`;
+                    updateStats();
+                    
+                    // Process next image
+                    setTimeout(() => processNextImage(index + 1), 100);
                 });
-            };
+            }
 
-            processBatch();
+            // Start processing
+            processNextImage(0);
         }
 
         function processSingleImage(imgData) {
@@ -1409,7 +1442,11 @@
                             watermarkedUrl: watermarkedUrl
                         };
                         
+                        // Add to watermarked images array
                         watermarkedImages.push(watermarkedData);
+                        
+                        // Always sort watermarked images by sortedId
+                        watermarkedImages.sort((a, b) => a.sortedId - b.sortedId);
                         
                         // Update preview
                         createPreview(watermarkedData, 'watermarked');
@@ -1712,17 +1749,32 @@
             
             // Show download confirmation
             if (confirm(`You are about to download ${watermarkedImages.length} images. Continue?`)) {
-                watermarkedImages.forEach((imgData, index) => {
+                // Sort images by sortedId before downloading
+                const sortedImages = [...watermarkedImages].sort((a, b) => a.sortedId - b.sortedId);
+                
+                // Download images in sequence
+                function downloadNextImage(index) {
+                    if (index >= sortedImages.length) return;
+                    
+                    const imgData = sortedImages[index];
+                    downloadSingleImage(imgData);
+                    
+                    // Wait a bit before downloading next image to avoid browser blocking
                     setTimeout(() => {
-                        downloadSingleImage(imgData);
-                    }, index * 300); // Stagger downloads
-                });
+                        downloadNextImage(index + 1);
+                    }, 500);
+                }
+                
+                // Start downloading from first image
+                downloadNextImage(0);
             }
         }
 
         function downloadSingleImage(imgData) {
             const link = document.createElement('a');
-            link.download = `watermarked_${imgData.name}`;
+            // Add numbering to filename for better order
+            const fileName = `${(imgData.sortedId + 1).toString().padStart(3, '0')}_watermarked_${imgData.name}`;
+            link.download = fileName;
             link.href = imgData.watermarkedUrl;
             document.body.appendChild(link);
             link.click();
@@ -1739,17 +1791,21 @@
                 const zip = new JSZip();
                 let processed = 0;
                 
-                watermarkedImages.forEach((imgData) => {
+                // Sort images by sortedId before adding to ZIP
+                const sortedImages = [...watermarkedImages].sort((a, b) => a.sortedId - b.sortedId);
+                
+                sortedImages.forEach((imgData) => {
                     // Convert data URL to blob
                     fetch(imgData.watermarkedUrl)
                         .then(res => res.blob())
                         .then(blob => {
-                            // Add image to zip
-                            zip.file(`watermarked_${imgData.name}`, blob);
+                            // Add image to zip with proper numbering
+                            const fileName = `${(imgData.sortedId + 1).toString().padStart(3, '0')}_watermarked_${imgData.name}`;
+                            zip.file(fileName, blob);
                             processed++;
                             
                             // Check if all images are added
-                            if (processed === watermarkedImages.length) {
+                            if (processed === sortedImages.length) {
                                 // Generate zip file
                                 zip.generateAsync({type: "blob"})
                                     .then(function(content) {
@@ -1775,4 +1831,4 @@
         updateBothFontPreview();
     </script>
 </body>
-</html>
+    </html>
