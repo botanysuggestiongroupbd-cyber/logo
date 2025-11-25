@@ -7,6 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
+        /* All previous CSS remains exactly the same */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -167,18 +168,89 @@
             outline: none;
         }
         
-        .color-size-group {
+        .color-selector-group {
             display: flex;
             gap: 10px;
             align-items: center;
+            margin-bottom: 15px;
         }
         
-        .color-input {
+        .color-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             flex: 1;
+        }
+        
+        .color-preview {
+            width: 100%;
             height: 50px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            padding: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .color-preview:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .color-preview-text {
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+        
+        .color-preview-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .color-input-hidden {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .color-option {
+            width: 100%;
+            height: 30px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+        }
+        
+        .color-option.selected {
+            border-color: #667eea;
+            transform: scale(1.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
         .size-input {
@@ -515,6 +587,76 @@
             justify-content: center;
         }
         
+        /* Logo Source Selector */
+        .logo-source-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .logo-source-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .logo-source-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Predefined Logos */
+        .predefined-logos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .predefined-logo-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .predefined-logo-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .predefined-logo-item.selected {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .predefined-logo-img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        
+        .predefined-logo-name {
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .preview-section {
@@ -526,12 +668,8 @@
                 height: 100px;
             }
             
-            .color-size-group {
+            .color-selector-group {
                 flex-direction: column;
-            }
-            
-            .color-input {
-                width: 100%;
             }
             
             .file-input-button {
@@ -556,6 +694,19 @@
             .download-buttons {
                 flex-direction: column;
             }
+            
+            .predefined-logos {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+            
+            .predefined-logo-img {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .color-options {
+                grid-template-columns: repeat(4, 1fr);
+            }
         }
         
         @media (max-width: 480px) {
@@ -563,7 +714,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
             
-            .watermark-type {
+            .watermark-type, .logo-source-selector {
                 flex-direction: column;
             }
             
@@ -577,6 +728,14 @@
             
             .font-selector {
                 flex-direction: column;
+            }
+            
+            .predefined-logos {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .color-options {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -713,7 +872,6 @@
                 <h3>Upload Your Images</h3>
                 <p>Select multiple images at once</p>
                 
-                <!-- Improved file input -->
                 <div class="file-input-container">
                     <button class="file-input-button" id="fileInputButton">
                         📸 Select Images
@@ -734,7 +892,6 @@
                 </div>
             </div>
 
-            <!-- Selected files list -->
             <div class="selected-files hidden" id="selectedFiles">
                 <h4>Selected Images:</h4>
                 <ul class="file-list" id="fileList"></ul>
@@ -761,7 +918,6 @@
         <div class="card">
             <h2 class="section-title">Watermark Settings</h2>
             
-            <!-- Watermark Type Selection -->
             <div class="watermark-type">
                 <div class="type-btn active" data-type="text">📝 Text</div>
                 <div class="type-btn" data-type="image">🖼️ Image</div>
@@ -798,8 +954,18 @@
                 
                 <div class="control-group">
                     <label class="control-label">Text Style</label>
-                    <div class="color-size-group">
-                        <input type="color" id="textColor" class="color-input" value="#ffffff">
+                    <div class="color-selector-group">
+                        <div class="color-selector">
+                            <label class="control-label">Text Color</label>
+                            <div class="color-preview" id="textColorPreview">
+                                <div class="color-preview-background" id="textColorBackground"></div>
+                                <div class="color-preview-text">Selected Color</div>
+                            </div>
+                            <input type="color" id="textColor" class="color-input-hidden" value="#ffffff">
+                            <div class="color-options" id="textColorOptions">
+                                <!-- Color options will be added dynamically -->
+                            </div>
+                        </div>
                         <input type="number" id="textSize" class="control-input size-input" value="24" min="10" max="100" placeholder="Font Size">
                     </div>
                 </div>
@@ -807,16 +973,40 @@
             
             <!-- Image Watermark Controls -->
             <div id="imageControls" class="hidden">
+                <!-- Logo Source Selection - UPDATED: Predefined Logos first -->
                 <div class="control-group">
-                    <label class="control-label">Watermark Image</label>
-                    <input type="file" id="watermarkImage" class="control-input" accept="image/*">
-                    <img id="watermarkPreview" class="watermark-preview hidden" alt="Watermark Preview">
+                    <label class="control-label">Logo Source</label>
+                    <div class="logo-source-selector">
+                        <div class="logo-source-btn active" data-source="predefined">📁 Predefined Logos</div>
+                        <div class="logo-source-btn" data-source="upload">📤 Upload Logo</div>
+                    </div>
+                </div>
+                
+                <!-- Predefined Logos Section - UPDATED: Now shown by default -->
+                <div id="predefinedLogoSection">
+                    <div class="control-group">
+                        <label class="control-label">Select Predefined Logo</label>
+                        <div class="predefined-logos" id="predefinedLogos">
+                            <!-- Predefined logos will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Upload Logo Section - UPDATED: Now hidden by default -->
+                <div id="uploadLogoSection" class="hidden">
+                    <div class="control-group">
+                        <label class="control-label">Watermark Image</label>
+                        <input type="file" id="watermarkImage" class="control-input" accept="image/*">
+                        <img id="watermarkPreview" class="watermark-preview hidden" alt="Watermark Preview">
+                    </div>
                 </div>
                 
                 <div class="control-group">
                     <label class="control-label">Image Size (%)</label>
-                    <input type="range" id="imageSize" class="slider" min="5" max="50" value="20">
-                    <span id="imageSizeValue">20%</span>
+                    <div class="slider-group">
+                        <input type="range" id="imageSize" class="slider" min="5" max="50" value="20">
+                        <span id="imageSizeValue">20%</span>
+                    </div>
                 </div>
             </div>
             
@@ -862,24 +1052,58 @@
                     
                     <div class="control-group">
                         <label class="control-label">Text Style</label>
-                        <div class="color-size-group">
-                            <input type="color" id="bothTextColor" class="color-input" value="#ffffff">
+                        <div class="color-selector-group">
+                            <div class="color-selector">
+                                <label class="control-label">Text Color</label>
+                                <div class="color-preview" id="bothTextColorPreview">
+                                    <div class="color-preview-background" id="bothTextColorBackground"></div>
+                                    <div class="color-preview-text">Selected Color</div>
+                                </div>
+                                <input type="color" id="bothTextColor" class="color-input-hidden" value="#ffffff">
+                                <div class="color-options" id="bothTextColorOptions">
+                                    <!-- Color options will be added dynamically -->
+                                </div>
+                            </div>
                             <input type="number" id="bothTextSize" class="control-input size-input" value="24" min="10" max="100" placeholder="Font Size">
                         </div>
                     </div>
                 </div>
                 
                 <div id="bothImageControls">
+                    <!-- Logo Source Selection for Both - UPDATED: Predefined Logos first -->
                     <div class="control-group">
-                        <label class="control-label">Watermark Image</label>
-                        <input type="file" id="bothWatermarkImage" class="control-input" accept="image/*">
-                        <img id="bothWatermarkPreview" class="watermark-preview hidden" alt="Watermark Preview">
+                        <label class="control-label">Logo Source</label>
+                        <div class="logo-source-selector">
+                            <div class="logo-source-btn active" data-source="predefined">📁 Predefined Logos</div>
+                            <div class="logo-source-btn" data-source="upload">📤 Upload Logo</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Predefined Logos Section for Both - UPDATED: Now shown by default -->
+                    <div id="bothPredefinedLogoSection">
+                        <div class="control-group">
+                            <label class="control-label">Select Predefined Logo</label>
+                            <div class="predefined-logos" id="bothPredefinedLogos">
+                                <!-- Predefined logos will be added here dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Logo Section for Both - UPDATED: Now hidden by default -->
+                    <div id="bothUploadLogoSection" class="hidden">
+                        <div class="control-group">
+                            <label class="control-label">Watermark Image</label>
+                            <input type="file" id="bothWatermarkImage" class="control-input" accept="image/*">
+                            <img id="bothWatermarkPreview" class="watermark-preview hidden" alt="Watermark Preview">
+                        </div>
                     </div>
                     
                     <div class="control-group">
                         <label class="control-label">Image Size (%)</label>
-                        <input type="range" id="bothImageSize" class="slider" min="5" max="50" value="20">
-                        <span id="bothImageSizeValue">20%</span>
+                        <div class="slider-group">
+                            <input type="range" id="bothImageSize" class="slider" min="5" max="50" value="20">
+                            <span id="bothImageSizeValue">20%</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -961,6 +1185,9 @@
         const fileList = document.getElementById('fileList');
         const watermarkText = document.getElementById('watermarkText');
         const textColor = document.getElementById('textColor');
+        const textColorPreview = document.getElementById('textColorPreview');
+        const textColorBackground = document.getElementById('textColorBackground');
+        const textColorOptions = document.getElementById('textColorOptions');
         const textSize = document.getElementById('textSize');
         const opacity = document.getElementById('opacity');
         const opacityValue = document.getElementById('opacityValue');
@@ -1001,6 +1228,9 @@
         const bothImageControls = document.getElementById('bothImageControls');
         const bothWatermarkText = document.getElementById('bothWatermarkText');
         const bothTextColor = document.getElementById('bothTextColor');
+        const bothTextColorPreview = document.getElementById('bothTextColorPreview');
+        const bothTextColorBackground = document.getElementById('bothTextColorBackground');
+        const bothTextColorOptions = document.getElementById('bothTextColorOptions');
         const bothTextSize = document.getElementById('bothTextSize');
         const bothWatermarkImage = document.getElementById('bothWatermarkImage');
         const bothWatermarkPreview = document.getElementById('bothWatermarkPreview');
@@ -1015,6 +1245,15 @@
         const modalNext = document.getElementById('modalNext');
         const modalInfo = document.getElementById('modalInfo');
 
+        // New elements for predefined logos
+        const logoSourceButtons = document.querySelectorAll('.logo-source-btn');
+        const uploadLogoSection = document.getElementById('uploadLogoSection');
+        const predefinedLogoSection = document.getElementById('predefinedLogoSection');
+        const predefinedLogos = document.getElementById('predefinedLogos');
+        const bothUploadLogoSection = document.getElementById('bothUploadLogoSection');
+        const bothPredefinedLogoSection = document.getElementById('bothPredefinedLogoSection');
+        const bothPredefinedLogos = document.getElementById('bothPredefinedLogos');
+
         // Global variables
         let originalImages = [];
         let watermarkedImages = [];
@@ -1023,6 +1262,38 @@
         let bothWatermarkImageData = null;
         let currentPreviewIndex = 0;
         let currentPreviewType = 'original';
+        let selectedPredefinedLogo = null;
+        let selectedBothPredefinedLogo = null;
+        let currentLogoSource = 'predefined'; // Updated default
+        let currentBothLogoSource = 'predefined'; // Updated default
+
+        // Predefined logos data - NOW USING LOCAL FILES
+        const predefinedLogosData = [
+            {
+                name: "Original",
+                url: "L1.png"  // Just the filename, assuming it's in the same directory
+            },
+            {
+                name: "Dark", 
+                url: "L2.png"
+            },
+            {
+                name: "Green",
+                url: "L3.png"
+            },
+            {
+                name: "Black And White",
+                url: "L4.png"
+            }
+        ];
+
+        // Color options for the color picker
+        const colorOptions = [
+            '#ffffff', '#000000', '#ff0000', '#00ff00', '#0000ff', 
+            '#ffff00', '#ff00ff', '#00ffff', '#ff6b6b', '#4ecdc4',
+            '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff',
+            '#5f27cd', '#00d2d3', '#ff9f43', '#10ac84', '#ee5a24'
+        ];
 
         // Event Listeners
         imageInput.addEventListener('change', handleImageUpload);
@@ -1051,6 +1322,62 @@
         // Checkbox event listeners
         textCheckbox.addEventListener('click', toggleTextWatermark);
         imageCheckbox.addEventListener('click', toggleImageWatermark);
+
+        // Logo source event listeners - UPDATED for new default
+        logoSourceButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const source = btn.dataset.source;
+                
+                if (btn.closest('#bothImageControls')) {
+                    // Both watermark section
+                    currentBothLogoSource = source;
+                    document.querySelectorAll('#bothImageControls .logo-source-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    
+                    if (source === 'upload') {
+                        bothUploadLogoSection.classList.remove('hidden');
+                        bothPredefinedLogoSection.classList.add('hidden');
+                    } else {
+                        bothUploadLogoSection.classList.add('hidden');
+                        bothPredefinedLogoSection.classList.remove('hidden');
+                    }
+                } else {
+                    // Single image watermark section
+                    currentLogoSource = source;
+                    document.querySelectorAll('#imageControls .logo-source-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    
+                    if (source === 'upload') {
+                        uploadLogoSection.classList.remove('hidden');
+                        predefinedLogoSection.classList.add('hidden');
+                    } else {
+                        uploadLogoSection.classList.add('hidden');
+                        predefinedLogoSection.classList.remove('hidden');
+                    }
+                }
+            });
+        });
+
+        // Color picker event listeners
+        textColorPreview.addEventListener('click', () => {
+            textColor.click();
+        });
+
+        textColor.addEventListener('input', () => {
+            updateColorPreview(textColor.value, textColorBackground, textColorOptions);
+        });
+
+        bothTextColorPreview.addEventListener('click', () => {
+            bothTextColor.click();
+        });
+
+        bothTextColor.addEventListener('input', () => {
+            updateColorPreview(bothTextColor.value, bothTextColorBackground, bothTextColorOptions);
+        });
 
         // Make entire upload area clickable as fallback
         uploadArea.addEventListener('click', (e) => {
@@ -1096,6 +1423,111 @@
             imageInput.files = e.dataTransfer.files;
             handleImageUpload({ target: imageInput });
         });
+
+        // Initialize predefined logos
+        function initializePredefinedLogos() {
+            predefinedLogos.innerHTML = '';
+            bothPredefinedLogos.innerHTML = '';
+            
+            predefinedLogosData.forEach((logo, index) => {
+                const logoItem = document.createElement('div');
+                logoItem.className = 'predefined-logo-item';
+                logoItem.dataset.index = index;
+                
+                logoItem.innerHTML = `
+                    <img src="${logo.url}" alt="${logo.name}" class="predefined-logo-img" onerror="this.style.display='none'">
+                    <div class="predefined-logo-name">${logo.name}</div>
+                `;
+                
+                logoItem.addEventListener('click', () => {
+                    // Deselect all other logos
+                    document.querySelectorAll('#predefinedLogos .predefined-logo-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    
+                    // Select this logo
+                    logoItem.classList.add('selected');
+                    selectedPredefinedLogo = logo.url;
+                });
+                
+                predefinedLogos.appendChild(logoItem);
+                
+                // Create same for both watermark section
+                const bothLogoItem = logoItem.cloneNode(true);
+                bothLogoItem.addEventListener('click', () => {
+                    document.querySelectorAll('#bothPredefinedLogos .predefined-logo-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    
+                    bothLogoItem.classList.add('selected');
+                    selectedBothPredefinedLogo = logo.url;
+                });
+                
+                bothPredefinedLogos.appendChild(bothLogoItem);
+            });
+
+            // Auto-select first logo in both sections
+            if (predefinedLogos.firstChild) {
+                predefinedLogos.firstChild.click();
+            }
+            if (bothPredefinedLogos.firstChild) {
+                bothPredefinedLogos.firstChild.click();
+            }
+        }
+
+        // Initialize color options
+        function initializeColorOptions() {
+            // Text color options
+            textColorOptions.innerHTML = '';
+            colorOptions.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = color;
+                colorOption.dataset.color = color;
+                
+                colorOption.addEventListener('click', () => {
+                    textColor.value = color;
+                    updateColorPreview(color, textColorBackground, textColorOptions);
+                });
+                
+                textColorOptions.appendChild(colorOption);
+            });
+
+            // Both text color options
+            bothTextColorOptions.innerHTML = '';
+            colorOptions.forEach(color => {
+                const colorOption = document.createElement('div');
+                colorOption.className = 'color-option';
+                colorOption.style.backgroundColor = color;
+                colorOption.dataset.color = color;
+                
+                colorOption.addEventListener('click', () => {
+                    bothTextColor.value = color;
+                    updateColorPreview(color, bothTextColorBackground, bothTextColorOptions);
+                });
+                
+                bothTextColorOptions.appendChild(colorOption);
+            });
+
+            // Initialize color previews
+            updateColorPreview(textColor.value, textColorBackground, textColorOptions);
+            updateColorPreview(bothTextColor.value, bothTextColorBackground, bothTextColorOptions);
+        }
+
+        // Update color preview
+        function updateColorPreview(color, backgroundElement, optionsContainer) {
+            backgroundElement.style.backgroundColor = color;
+            
+            // Update selected state in color options
+            const colorOptions = optionsContainer.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                if (option.dataset.color === color) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
 
         function updateOpacityValue() {
             opacityValue.textContent = Math.round(opacity.value * 100) + '%';
@@ -1395,9 +1827,15 @@
             if (originalImages.length === 0) return;
 
             // Validate watermarks
-            if (currentWatermarkType === 'image' && !watermarkImageData) {
-                alert('Please select a watermark image');
-                return;
+            if (currentWatermarkType === 'image') {
+                if (currentLogoSource === 'upload' && !watermarkImageData) {
+                    alert('Please select a watermark image');
+                    return;
+                }
+                if (currentLogoSource === 'predefined' && !selectedPredefinedLogo) {
+                    alert('Please select a predefined logo');
+                    return;
+                }
             }
 
             if (currentWatermarkType === 'both') {
@@ -1409,9 +1847,15 @@
                     alert('Please enter watermark text');
                     return;
                 }
-                if (imageCheckbox.classList.contains('checked') && !bothWatermarkImageData) {
-                    alert('Please select a watermark image');
-                    return;
+                if (imageCheckbox.classList.contains('checked')) {
+                    if (currentBothLogoSource === 'upload' && !bothWatermarkImageData) {
+                        alert('Please select a watermark image');
+                        return;
+                    }
+                    if (currentBothLogoSource === 'predefined' && !selectedBothPredefinedLogo) {
+                        alert('Please select a predefined logo');
+                        return;
+                    }
                 }
             }
 
@@ -1591,9 +2035,20 @@
 
         function applyImageWatermark(ctx, width, height) {
             return new Promise((resolve, reject) => {
-                if (!watermarkImageData) {
-                    reject('No watermark image');
-                    return;
+                let watermarkSrc;
+                
+                if (currentLogoSource === 'upload') {
+                    if (!watermarkImageData) {
+                        reject('No watermark image');
+                        return;
+                    }
+                    watermarkSrc = watermarkImageData;
+                } else {
+                    if (!selectedPredefinedLogo) {
+                        reject('No predefined logo selected');
+                        return;
+                    }
+                    watermarkSrc = selectedPredefinedLogo;
                 }
 
                 const watermarkImg = new Image();
@@ -1646,7 +2101,7 @@
                     resolve();
                 };
                 watermarkImg.onerror = reject;
-                watermarkImg.src = watermarkImageData;
+                watermarkImg.src = watermarkSrc;
             });
         }
 
@@ -1655,8 +2110,29 @@
                 const alpha = parseFloat(opacity.value);
                 const pos = position.value;
                 
-                // Apply image watermark first if selected
-                if (imageCheckbox.classList.contains('checked') && bothWatermarkImageData) {
+                // Apply text watermark first if selected
+                if (textCheckbox.classList.contains('checked')) {
+                    applyBothTextWatermark(ctx, width, height);
+                }
+                
+                // Apply image watermark if selected
+                if (imageCheckbox.classList.contains('checked')) {
+                    let watermarkSrc;
+                    
+                    if (currentBothLogoSource === 'upload') {
+                        if (!bothWatermarkImageData) {
+                            reject('No watermark image');
+                            return;
+                        }
+                        watermarkSrc = bothWatermarkImageData;
+                    } else {
+                        if (!selectedBothPredefinedLogo) {
+                            reject('No predefined logo selected');
+                            return;
+                        }
+                        watermarkSrc = selectedBothPredefinedLogo;
+                    }
+
                     const watermarkImg = new Image();
                     watermarkImg.onload = function() {
                         const sizePercent = parseInt(bothImageSize.value) / 100;
@@ -1665,60 +2141,52 @@
                         
                         ctx.globalAlpha = alpha;
                         
-                        let imageX, imageY;
-                        const padding = 20;
-                        
-                        switch(pos) {
-                            case 'bottom-right':
-                                imageX = width - watermarkWidth - padding;
-                                imageY = height - watermarkHeight - padding;
-                                break;
-                            case 'bottom-left':
-                                imageX = padding;
-                                imageY = height - watermarkHeight - padding;
-                                break;
-                            case 'top-right':
-                                imageX = width - watermarkWidth - padding;
-                                imageY = padding;
-                                break;
-                            case 'top-left':
-                                imageX = padding;
-                                imageY = padding;
-                                break;
-                            case 'center':
-                                imageX = (width - watermarkWidth) / 2;
-                                imageY = (height - watermarkHeight) / 2;
-                                break;
-                            case 'tile':
-                                applyTiledWatermark(ctx, width, height, () => {
-                                    ctx.drawImage(watermarkImg, 0, 0, watermarkWidth, watermarkHeight);
-                                }, watermarkWidth * 2);
-                                break;
-                        }
-                        
-                        if (pos !== 'tile') {
-                            ctx.drawImage(watermarkImg, imageX, imageY, watermarkWidth, watermarkHeight);
-                        }
-                        
-                        // After image is drawn, apply text watermark
-                        if (textCheckbox.classList.contains('checked')) {
-                            applyBothTextWatermark(ctx, width, height, imageX, imageY, watermarkWidth, watermarkHeight);
+                        if (pos === 'tile') {
+                            // Tile watermark across the image
+                            applyTiledWatermark(ctx, width, height, () => {
+                                ctx.drawImage(watermarkImg, 0, 0, watermarkWidth, watermarkHeight);
+                            }, watermarkWidth * 2);
+                        } else {
+                            // Single watermark
+                            let x, y;
+                            const padding = 20;
+                            
+                            switch(pos) {
+                                case 'bottom-right':
+                                    x = width - watermarkWidth - padding;
+                                    y = height - watermarkHeight - padding;
+                                    break;
+                                case 'bottom-left':
+                                    x = padding;
+                                    y = height - watermarkHeight - padding;
+                                    break;
+                                case 'top-right':
+                                    x = width - watermarkWidth - padding;
+                                    y = padding;
+                                    break;
+                                case 'top-left':
+                                    x = padding;
+                                    y = padding;
+                                    break;
+                                case 'center':
+                                    x = (width - watermarkWidth) / 2;
+                                    y = (height - watermarkHeight) / 2;
+                                    break;
+                            }
+                            
+                            ctx.drawImage(watermarkImg, x, y, watermarkWidth, watermarkHeight);
                         }
                         resolve();
                     };
                     watermarkImg.onerror = reject;
-                    watermarkImg.src = bothWatermarkImageData;
-                } else if (textCheckbox.classList.contains('checked')) {
-                    // If only text is selected (no image)
-                    applyBothTextWatermark(ctx, width, height);
-                    resolve();
+                    watermarkImg.src = watermarkSrc;
                 } else {
                     resolve();
                 }
             });
         }
 
-        function applyBothTextWatermark(ctx, width, height, imageX = null, imageY = null, imageWidth = null, imageHeight = null) {
+        function applyBothTextWatermark(ctx, width, height) {
             const text = bothWatermarkText.value;
             const fontSize = parseInt(bothTextSize.value);
             const color = bothTextColor.value;
@@ -1730,8 +2198,51 @@
             ctx.font = `bold ${fontSize}px ${font}`;
             ctx.fillStyle = color;
             ctx.globalAlpha = alpha;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'top';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'bottom';
+            
+            // Calculate position
+            let x, y;
+            const padding = 20;
+            
+            switch(pos) {
+                case 'bottom-right':
+                    x = width - padding;
+                    y = height - padding;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'bottom';
+                    break;
+                case 'bottom-left':
+                    x = padding;
+                    y = height - padding;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'bottom';
+                    break;
+                case 'top-right':
+                    x = width - padding;
+                    y = padding;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'top';
+                    break;
+                case 'top-left':
+                    x = padding;
+                    y = padding;
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'top';
+                    break;
+                case 'center':
+                    x = width / 2;
+                    y = height / 2;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    break;
+                case 'tile':
+                    // Tile watermark across the image
+                    applyTiledWatermark(ctx, width, height, () => {
+                        ctx.fillText(text, 0, 0);
+                    }, fontSize * 2);
+                    return;
+            }
             
             // Add text shadow for better visibility
             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
@@ -1739,61 +2250,8 @@
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
             
-            let textX, textY;
-            const padding = 20;
-            const textSpacing = 10; // Space between image and text
-            
-            if (pos === 'tile') {
-                // For tile mode, apply text separately
-                applyTiledWatermark(ctx, width, height, () => {
-                    ctx.fillText(text, 0, 0);
-                }, fontSize * 2);
-                return;
-            }
-            
-            // Calculate text position based on image position
-            if (imageX !== null && imageY !== null && imageWidth !== null && imageHeight !== null) {
-                // If image exists, place text below the image
-                textX = imageX + (imageWidth / 2);
-                textY = imageY + imageHeight + textSpacing;
-            } else {
-                // If no image, use regular positioning but adjust for text-only
-                switch(pos) {
-                    case 'bottom-right':
-                        textX = width - padding;
-                        textY = height - padding - 30;
-                        ctx.textAlign = 'right';
-                        ctx.textBaseline = 'bottom';
-                        break;
-                    case 'bottom-left':
-                        textX = padding;
-                        textY = height - padding - 30;
-                        ctx.textAlign = 'left';
-                        ctx.textBaseline = 'bottom';
-                        break;
-                    case 'top-right':
-                        textX = width - padding;
-                        textY = padding + 30;
-                        ctx.textAlign = 'right';
-                        ctx.textBaseline = 'top';
-                        break;
-                    case 'top-left':
-                        textX = padding;
-                        textY = padding + 30;
-                        ctx.textAlign = 'left';
-                        ctx.textBaseline = 'top';
-                        break;
-                    case 'center':
-                        textX = width / 2;
-                        textY = height / 2 + 30;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        break;
-                }
-            }
-            
             // Draw watermark text
-            ctx.fillText(text, textX, textY);
+            ctx.fillText(text, x, y);
         }
 
         function applyTiledWatermark(ctx, width, height, drawFunction, spacing) {
@@ -1918,6 +2376,8 @@
         updateBothImageSizeValue();
         updateFontPreview();
         updateBothFontPreview();
+        initializePredefinedLogos();
+        initializeColorOptions();
     </script>
 </body>
-</html>
+    </html>
