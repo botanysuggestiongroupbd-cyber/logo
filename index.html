@@ -7,7 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
-        /* All previous CSS remains exactly the same */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -1264,14 +1263,14 @@
         let currentPreviewType = 'original';
         let selectedPredefinedLogo = null;
         let selectedBothPredefinedLogo = null;
-        let currentLogoSource = 'predefined'; // Updated default
-        let currentBothLogoSource = 'predefined'; // Updated default
+        let currentLogoSource = 'predefined';
+        let currentBothLogoSource = 'predefined';
 
-        // Predefined logos data - NOW USING LOCAL FILES
+        // Predefined logos data
         const predefinedLogosData = [
             {
                 name: "Original",
-                url: "L1.png"  // Just the filename, assuming it's in the same directory
+                url: "L1.png"
             },
             {
                 name: "Dark", 
@@ -1323,13 +1322,12 @@
         textCheckbox.addEventListener('click', toggleTextWatermark);
         imageCheckbox.addEventListener('click', toggleImageWatermark);
 
-        // Logo source event listeners - UPDATED for new default
+        // Logo source event listeners
         logoSourceButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const source = btn.dataset.source;
                 
                 if (btn.closest('#bothImageControls')) {
-                    // Both watermark section
                     currentBothLogoSource = source;
                     document.querySelectorAll('#bothImageControls .logo-source-btn').forEach(b => {
                         b.classList.remove('active');
@@ -1344,7 +1342,6 @@
                         bothPredefinedLogoSection.classList.remove('hidden');
                     }
                 } else {
-                    // Single image watermark section
                     currentLogoSource = source;
                     document.querySelectorAll('#imageControls .logo-source-btn').forEach(b => {
                         b.classList.remove('active');
@@ -1440,19 +1437,16 @@
                 `;
                 
                 logoItem.addEventListener('click', () => {
-                    // Deselect all other logos
                     document.querySelectorAll('#predefinedLogos .predefined-logo-item').forEach(item => {
                         item.classList.remove('selected');
                     });
                     
-                    // Select this logo
                     logoItem.classList.add('selected');
                     selectedPredefinedLogo = logo.url;
                 });
                 
                 predefinedLogos.appendChild(logoItem);
                 
-                // Create same for both watermark section
                 const bothLogoItem = logoItem.cloneNode(true);
                 bothLogoItem.addEventListener('click', () => {
                     document.querySelectorAll('#bothPredefinedLogos .predefined-logo-item').forEach(item => {
@@ -1466,7 +1460,6 @@
                 bothPredefinedLogos.appendChild(bothLogoItem);
             });
 
-            // Auto-select first logo in both sections
             if (predefinedLogos.firstChild) {
                 predefinedLogos.firstChild.click();
             }
@@ -1477,7 +1470,6 @@
 
         // Initialize color options
         function initializeColorOptions() {
-            // Text color options
             textColorOptions.innerHTML = '';
             colorOptions.forEach(color => {
                 const colorOption = document.createElement('div');
@@ -1493,7 +1485,6 @@
                 textColorOptions.appendChild(colorOption);
             });
 
-            // Both text color options
             bothTextColorOptions.innerHTML = '';
             colorOptions.forEach(color => {
                 const colorOption = document.createElement('div');
@@ -1509,7 +1500,6 @@
                 bothTextColorOptions.appendChild(colorOption);
             });
 
-            // Initialize color previews
             updateColorPreview(textColor.value, textColorBackground, textColorOptions);
             updateColorPreview(bothTextColor.value, bothTextColorBackground, bothTextColorOptions);
         }
@@ -1518,7 +1508,6 @@
         function updateColorPreview(color, backgroundElement, optionsContainer) {
             backgroundElement.style.backgroundColor = color;
             
-            // Update selected state in color options
             const colorOptions = optionsContainer.querySelectorAll('.color-option');
             colorOptions.forEach(option => {
                 if (option.dataset.color === color) {
@@ -1599,14 +1588,10 @@
             fileList.innerHTML = '';
             downloadButtons.classList.add('hidden');
 
-            // Update file info
             fileInfo.textContent = `${files.length} images selected`;
             fileInputButton.textContent = `📸 ${files.length} Images Selected`;
 
-            // Convert FileList to Array
             const filesArray = Array.from(files);
-            
-            // Filter only image files
             const imageFiles = filesArray.filter(file => file.type.startsWith('image/'));
             
             if (imageFiles.length === 0) {
@@ -1614,10 +1599,8 @@
                 return;
             }
 
-            // Clear the initial message
             previewSection.innerHTML = '';
 
-            // Create file list items first
             imageFiles.forEach((file, index) => {
                 const fileItem = document.createElement('li');
                 fileItem.className = 'file-item';
@@ -1628,7 +1611,6 @@
                 fileList.appendChild(fileItem);
             });
 
-            // Load images with better performance
             let loadedCount = 0;
             const totalImages = imageFiles.length;
 
@@ -1644,23 +1626,17 @@
                         uploadOrder: index
                     };
                     
-                    // Add to array
                     originalImages.push(imgData);
-                    
-                    // Sort by upload order to maintain sequence
                     originalImages.sort((a, b) => a.uploadOrder - b.uploadOrder);
                     
-                    // Create preview immediately
                     createPreview(imgData, 'original');
                     
                     loadedCount++;
                     updateStats();
                     
-                    // Enable process button when all images are loaded
                     if (loadedCount === totalImages) {
                         processBtn.disabled = false;
                         
-                        // Add event listeners for remove buttons
                         document.querySelectorAll('.file-remove').forEach(btn => {
                             btn.addEventListener('click', (e) => {
                                 e.stopPropagation();
@@ -1684,16 +1660,13 @@
         }
 
         function removeImage(index) {
-            // Remove from arrays
             originalImages = originalImages.filter(img => img.id !== index);
             watermarkedImages = watermarkedImages.filter(img => img.id !== index);
             
-            // Reindex remaining images
             originalImages.forEach((img, newIndex) => {
                 img.id = newIndex;
             });
             
-            // Remove from file list
             const fileItems = document.querySelectorAll('.file-item');
             fileItems.forEach((item, itemIndex) => {
                 if (parseInt(item.querySelector('.file-remove').dataset.index) === index) {
@@ -1701,12 +1674,10 @@
                 }
             });
             
-            // Update remove buttons dataset indices
             document.querySelectorAll('.file-remove').forEach((btn, btnIndex) => {
                 btn.dataset.index = btnIndex;
             });
             
-            // Recreate all previews
             previewSection.innerHTML = '';
             originalImages.forEach(imgData => {
                 createPreview(imgData, 'original');
@@ -1715,11 +1686,9 @@
                 createPreview(imgData, 'watermarked');
             });
             
-            // Update stats and process button
             updateStats();
             processBtn.disabled = originalImages.length === 0;
             
-            // Update file info
             if (originalImages.length === 0) {
                 fileInfo.textContent = 'No files selected';
                 fileInputButton.textContent = '📸 Select Images';
@@ -1745,30 +1714,25 @@
             previewItem.id = `preview-${type}-${imgData.id}`;
             previewItem.addEventListener('click', () => openModal(imgData.id, type));
             
-            // Create image element
             const img = document.createElement('img');
             img.className = 'preview-img';
             img.src = type === 'watermarked' ? imgData.watermarkedUrl : imgData.originalUrl;
             img.alt = imgData.name;
             
-            // Create name element with badge
             const nameDiv = document.createElement('div');
             nameDiv.className = 'preview-name';
             
             const badge = type === 'watermarked' ? '✅ ' : '📷 ';
             nameDiv.textContent = badge + imgData.name;
             
-            // Add serial number badge
             const serialBadge = document.createElement('div');
             serialBadge.className = 'preview-badge';
             serialBadge.textContent = `#${imgData.id + 1}`;
             
-            // Append to preview item
             previewItem.appendChild(img);
             previewItem.appendChild(nameDiv);
             previewItem.appendChild(serialBadge);
             
-            // Add to preview section
             previewSection.appendChild(previewItem);
         }
 
@@ -1778,10 +1742,8 @@
             
             currentPreviewType = type;
             
-            // Find the image by index
             const imgData = images.find(img => img.id === index);
             if (!imgData) {
-                // If not found, show first image
                 currentPreviewIndex = 0;
                 const firstImgData = images[0];
                 modalImg.src = type === 'watermarked' ? firstImgData.watermarkedUrl : firstImgData.originalUrl;
@@ -1794,7 +1756,6 @@
             
             previewModal.style.display = 'flex';
             
-            // Update navigation buttons visibility
             modalPrev.style.display = images.length > 1 ? 'flex' : 'none';
             modalNext.style.display = images.length > 1 ? 'flex' : 'none';
         }
@@ -1826,7 +1787,6 @@
         function processAllImages() {
             if (originalImages.length === 0) return;
 
-            // Validate watermarks
             if (currentWatermarkType === 'image') {
                 if (currentLogoSource === 'upload' && !watermarkImageData) {
                     alert('Please select a watermark image');
@@ -1869,15 +1829,12 @@
             let processed = 0;
             const total = originalImages.length;
 
-            // Process images in original order
             function processNextImage(index) {
                 if (index >= originalImages.length) {
-                    // All images processed
                     loadingSpinner.style.display = 'none';
                     processBtn.disabled = false;
                     downloadButtons.classList.remove('hidden');
                     
-                    // Sort watermarked images by original ID
                     watermarkedImages.sort((a, b) => a.id - b.id);
                     return;
                 }
@@ -1887,13 +1844,11 @@
                 processSingleImage(imgData).then(() => {
                     processed++;
                     
-                    // Update progress
                     const progressPercent = (processed / total) * 100;
                     progress.style.width = progressPercent + '%';
                     progressText.textContent = `${Math.round(progressPercent)}% Complete`;
                     updateStats();
                     
-                    // Process next image
                     setTimeout(() => processNextImage(index + 1), 100);
                 }).catch(error => {
                     console.error('Error processing image:', error);
@@ -1903,7 +1858,6 @@
                 });
             }
 
-            // Start processing from first image in order
             processNextImage(0);
         }
 
@@ -1915,14 +1869,11 @@
                 
                 img.onload = function() {
                     try {
-                        // Set canvas size to image size
                         canvas.width = img.width;
                         canvas.height = img.height;
                         
-                        // Draw original image
                         ctx.drawImage(img, 0, 0);
                         
-                        // Apply watermark based on type
                         if (currentWatermarkType === 'text') {
                             applyTextWatermark(ctx, canvas.width, canvas.height);
                             finishProcessing();
@@ -1939,19 +1890,15 @@
                         }
                         
                         function finishProcessing() {
-                            // Get watermarked image data URL
                             const watermarkedUrl = canvas.toDataURL('image/jpeg', 0.9);
                             
-                            // Update image data
                             const watermarkedData = {
                                 ...imgData,
                                 watermarkedUrl: watermarkedUrl
                             };
                             
-                            // Add to watermarked images array
                             watermarkedImages.push(watermarkedData);
                             
-                            // Create preview
                             createPreview(watermarkedData, 'watermarked');
                             resolve();
                         }
@@ -1973,14 +1920,12 @@
             const pos = position.value;
             const font = fontFamily.value;
             
-            // Set text properties
             ctx.font = `bold ${fontSize}px ${font}`;
             ctx.fillStyle = color;
             ctx.globalAlpha = alpha;
             ctx.textAlign = 'right';
             ctx.textBaseline = 'bottom';
             
-            // Calculate position
             let x, y;
             const padding = 20;
             
@@ -2016,20 +1961,17 @@
                     ctx.textBaseline = 'middle';
                     break;
                 case 'tile':
-                    // Tile watermark across the image
                     applyTiledWatermark(ctx, width, height, () => {
                         ctx.fillText(text, 0, 0);
                     }, fontSize * 2);
                     return;
             }
             
-            // Add text shadow for better visibility
             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
             ctx.shadowBlur = 3;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
             
-            // Draw watermark text
             ctx.fillText(text, x, y);
         }
 
@@ -2057,19 +1999,16 @@
                     const pos = position.value;
                     const sizePercent = parseInt(imageSize.value) / 100;
                     
-                    // Calculate watermark size
                     const watermarkWidth = watermarkImg.width * sizePercent;
                     const watermarkHeight = watermarkImg.height * sizePercent;
                     
                     ctx.globalAlpha = alpha;
                     
                     if (pos === 'tile') {
-                        // Tile watermark across the image
                         applyTiledWatermark(ctx, width, height, () => {
                             ctx.drawImage(watermarkImg, 0, 0, watermarkWidth, watermarkHeight);
                         }, watermarkWidth * 2);
                     } else {
-                        // Single watermark
                         let x, y;
                         const padding = 20;
                         
@@ -2110,7 +2049,6 @@
                 const alpha = parseFloat(opacity.value);
                 const pos = position.value;
                 
-                // Apply image watermark first if selected
                 if (imageCheckbox.classList.contains('checked')) {
                     let watermarkSrc;
                     
@@ -2137,12 +2075,10 @@
                         ctx.globalAlpha = alpha;
                         
                         if (pos === 'tile') {
-                            // Tile watermark across the image
                             applyTiledWatermark(ctx, width, height, () => {
                                 ctx.drawImage(watermarkImg, 0, 0, watermarkWidth, watermarkHeight);
                             }, watermarkWidth * 2);
                         } else {
-                            // Single watermark
                             let x, y;
                             const padding = 20;
                             
@@ -2170,18 +2106,17 @@
                             }
                             
                             ctx.drawImage(watermarkImg, x, y, watermarkWidth, watermarkHeight);
-                        }
-                        
-                        // Apply text watermark after image if selected
-                        if (textCheckbox.classList.contains('checked')) {
-                            applyBothTextWatermark(ctx, width, height, watermarkWidth, watermarkHeight, pos, x, y);
+                            
+                            // Apply text watermark below the image
+                            if (textCheckbox.classList.contains('checked')) {
+                                applyBothTextWatermark(ctx, width, height, watermarkWidth, watermarkHeight, pos, x, y);
+                            }
                         }
                         resolve();
                     };
                     watermarkImg.onerror = reject;
                     watermarkImg.src = watermarkSrc;
                 } else {
-                    // If no image watermark, just apply text watermark
                     if (textCheckbox.classList.contains('checked')) {
                         applyBothTextWatermark(ctx, width, height, 0, 0, pos, 0, 0);
                     }
@@ -2197,40 +2132,19 @@
             const alpha = parseFloat(opacity.value);
             const font = bothFontFamily.value;
             
-            // Set text properties
             ctx.font = `bold ${fontSize}px ${font}`;
             ctx.fillStyle = color;
             ctx.globalAlpha = alpha;
             
-            // Calculate position for text below the image
             let x, y;
             const padding = 20;
             
+            // For all positions, place text below the image
             switch(pos) {
                 case 'bottom-right':
-                    x = imageX + imageWidth / 2;
-                    y = imageY + imageHeight + padding;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    break;
                 case 'bottom-left':
-                    x = imageX + imageWidth / 2;
-                    y = imageY + imageHeight + padding;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    break;
                 case 'top-right':
-                    x = imageX + imageWidth / 2;
-                    y = imageY + imageHeight + padding;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    break;
                 case 'top-left':
-                    x = imageX + imageWidth / 2;
-                    y = imageY + imageHeight + padding;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'top';
-                    break;
                 case 'center':
                     x = imageX + imageWidth / 2;
                     y = imageY + imageHeight + padding;
@@ -2238,20 +2152,23 @@
                     ctx.textBaseline = 'top';
                     break;
                 case 'tile':
-                    // Tile watermark across the image
                     applyTiledWatermark(ctx, width, height, () => {
                         ctx.fillText(text, 0, 0);
                     }, fontSize * 2);
                     return;
             }
             
-            // Add text shadow for better visibility
+            // If text would be drawn outside the canvas, adjust position
+            if (y + fontSize > height) {
+                y = imageY - padding;
+                ctx.textBaseline = 'bottom';
+            }
+            
             ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
             ctx.shadowBlur = 3;
             ctx.shadowOffsetX = 2;
             ctx.shadowOffsetY = 2;
             
-            // Draw watermark text
             ctx.fillText(text, x, y);
         }
 
@@ -2269,12 +2186,9 @@
         function downloadAllImages() {
             if (watermarkedImages.length === 0) return;
             
-            // Show download confirmation
             if (confirm(`You are about to download ${watermarkedImages.length} images. Continue?`)) {
-                // Sort images by original ID to maintain serial order
                 const sortedImages = [...watermarkedImages].sort((a, b) => a.id - b.id);
                 
-                // Download images in sequence
                 function downloadNextImage(index) {
                     if (index >= sortedImages.length) {
                         alert('All images downloaded successfully!');
@@ -2284,23 +2198,20 @@
                     const imgData = sortedImages[index];
                     downloadSingleImage(imgData, index);
                     
-                    // Wait a bit before downloading next image to avoid browser blocking
                     setTimeout(() => {
                         downloadNextImage(index + 1);
-                    }, 1000); // Increased delay to ensure proper sequencing
+                    }, 1000);
                 }
                 
-                // Start downloading from first image
                 downloadNextImage(0);
             }
         }
 
         function downloadSingleImage(imgData, sequenceNumber) {
             const link = document.createElement('a');
-            // Add proper serial numbering to filename
             const sequence = (sequenceNumber + 1).toString().padStart(3, '0');
-            const originalName = imgData.name.replace(/\.[^/.]+$/, ""); // Remove extension
-            const extension = imgData.name.split('.').pop(); // Get extension
+            const originalName = imgData.name.replace(/\.[^/.]+$/, "");
+            const extension = imgData.name.split('.').pop();
             const fileName = `${sequence}_${originalName}_watermarked.${extension}`;
             
             link.download = fileName;
@@ -2313,36 +2224,29 @@
         function downloadAsZip() {
             if (watermarkedImages.length === 0) return;
             
-            // Show download confirmation
             if (confirm(`You are about to download ${watermarkedImages.length} images as a ZIP file. Continue?`)) {
                 loadingSpinner.style.display = 'block';
                 
                 const zip = new JSZip();
                 let processed = 0;
                 
-                // Sort images by original ID to maintain serial order
                 const sortedImages = [...watermarkedImages].sort((a, b) => a.id - b.id);
                 
                 sortedImages.forEach((imgData, index) => {
-                    // Convert data URL to blob
                     fetch(imgData.watermarkedUrl)
                         .then(res => res.blob())
                         .then(blob => {
-                            // Add image to zip with proper serial numbering
                             const sequence = (index + 1).toString().padStart(3, '0');
-                            const originalName = imgData.name.replace(/\.[^/.]+$/, ""); // Remove extension
-                            const extension = imgData.name.split('.').pop(); // Get extension
+                            const originalName = imgData.name.replace(/\.[^/.]+$/, "");
+                            const extension = imgData.name.split('.').pop();
                             const fileName = `${sequence}_${originalName}_watermarked.${extension}`;
                             
                             zip.file(fileName, blob);
                             processed++;
                             
-                            // Check if all images are added
                             if (processed === sortedImages.length) {
-                                // Generate zip file
                                 zip.generateAsync({type: "blob"})
                                     .then(function(content) {
-                                        // Save the zip file
                                         saveAs(content, "watermarked_images.zip");
                                         loadingSpinner.style.display = 'none';
                                         alert('ZIP file downloaded successfully!');
@@ -2357,7 +2261,6 @@
                         .catch(error => {
                             console.error('Error processing image for ZIP:', error);
                             processed++;
-                            // Continue even if one image fails
                             if (processed === sortedImages.length) {
                                 zip.generateAsync({type: "blob"})
                                     .then(function(content) {
@@ -2381,4 +2284,4 @@
         initializeColorOptions();
     </script>
 </body>
-</html>
+                    </html>
