@@ -2110,12 +2110,7 @@
                 const alpha = parseFloat(opacity.value);
                 const pos = position.value;
                 
-                // Apply text watermark first if selected
-                if (textCheckbox.classList.contains('checked')) {
-                    applyBothTextWatermark(ctx, width, height);
-                }
-                
-                // Apply image watermark if selected
+                // Apply image watermark first if selected
                 if (imageCheckbox.classList.contains('checked')) {
                     let watermarkSrc;
                     
@@ -2176,65 +2171,71 @@
                             
                             ctx.drawImage(watermarkImg, x, y, watermarkWidth, watermarkHeight);
                         }
+                        
+                        // Apply text watermark after image if selected
+                        if (textCheckbox.classList.contains('checked')) {
+                            applyBothTextWatermark(ctx, width, height, watermarkWidth, watermarkHeight, pos, x, y);
+                        }
                         resolve();
                     };
                     watermarkImg.onerror = reject;
                     watermarkImg.src = watermarkSrc;
                 } else {
+                    // If no image watermark, just apply text watermark
+                    if (textCheckbox.classList.contains('checked')) {
+                        applyBothTextWatermark(ctx, width, height, 0, 0, pos, 0, 0);
+                    }
                     resolve();
                 }
             });
         }
 
-        function applyBothTextWatermark(ctx, width, height) {
+        function applyBothTextWatermark(ctx, width, height, imageWidth, imageHeight, pos, imageX, imageY) {
             const text = bothWatermarkText.value;
             const fontSize = parseInt(bothTextSize.value);
             const color = bothTextColor.value;
             const alpha = parseFloat(opacity.value);
-            const pos = position.value;
             const font = bothFontFamily.value;
             
             // Set text properties
             ctx.font = `bold ${fontSize}px ${font}`;
             ctx.fillStyle = color;
             ctx.globalAlpha = alpha;
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'bottom';
             
-            // Calculate position
+            // Calculate position for text below the image
             let x, y;
             const padding = 20;
             
             switch(pos) {
                 case 'bottom-right':
-                    x = width - padding;
-                    y = height - padding;
-                    ctx.textAlign = 'right';
-                    ctx.textBaseline = 'bottom';
+                    x = imageX + imageWidth / 2;
+                    y = imageY + imageHeight + padding;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
                     break;
                 case 'bottom-left':
-                    x = padding;
-                    y = height - padding;
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'bottom';
+                    x = imageX + imageWidth / 2;
+                    y = imageY + imageHeight + padding;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'top';
                     break;
                 case 'top-right':
-                    x = width - padding;
-                    y = padding;
-                    ctx.textAlign = 'right';
+                    x = imageX + imageWidth / 2;
+                    y = imageY + imageHeight + padding;
+                    ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
                     break;
                 case 'top-left':
-                    x = padding;
-                    y = padding;
-                    ctx.textAlign = 'left';
+                    x = imageX + imageWidth / 2;
+                    y = imageY + imageHeight + padding;
+                    ctx.textAlign = 'center';
                     ctx.textBaseline = 'top';
                     break;
                 case 'center':
-                    x = width / 2;
-                    y = height / 2;
+                    x = imageX + imageWidth / 2;
+                    y = imageY + imageHeight + padding;
                     ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
+                    ctx.textBaseline = 'top';
                     break;
                 case 'tile':
                     // Tile watermark across the image
@@ -2380,4 +2381,4 @@
         initializeColorOptions();
     </script>
 </body>
-    </html>
+</html>
